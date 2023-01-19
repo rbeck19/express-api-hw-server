@@ -1,5 +1,5 @@
 const express = require("express")
-
+const { handle404 } = require("../lib/cutom-errors")
 const Book = require("../models/book")
 
 const router = express.Router()
@@ -20,6 +20,7 @@ router.get("/books", (req, res, next) => {
 //GET  /books/:id
 router.get("/books/:id", (req, res, next) => {
     Book.findById(req.params.id)
+        .then(handle404)
         .then(book => {
             res.status(200).json({ book: book })
         })
@@ -36,6 +37,28 @@ router.post("/books", (req, res, next) => {
         .catch(next)
 })
 
+//UPDATE
+//PATCH /books/:id
+router.patch("/books/:id", (req, res, next) => {
+    Book.findById(req.params.id)
+        .then(handle404)
+        .then(book => {
+            return book.updateOne(req.body.book)
+        })
+        .then(() => res.sendStatus(204))
+        .catch(next)
+})
 
+//DELETE 
+//    /books/:id
+router.delete("/books/:id", (req, res, next) => {
+    Book.findById(req.params.id)
+        .then(handle404)
+        .then(book => {
+            book.deleteOne()
+        })
+        .then(() => res.sendStatus(204))
+        .catch(next)
+})
 
 module.exports = router
